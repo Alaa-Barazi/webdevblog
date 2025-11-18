@@ -23,8 +23,7 @@ const NavBar = () => {
             <UserButton />
             <>
               <Link href="/login">Login</Link>
-               <Link href="/register">Register</Link>
-             
+              <Link href="/register">Register</Link>
             </>
           </div>
         </div>
