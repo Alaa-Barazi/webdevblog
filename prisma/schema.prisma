@@ -42,4 +42,22 @@ model Account {
  
   @@id([provider, providerAccountId])
 }
+
+
+model EmailVerificationToken{
+  id    String          @id @default(cuid())
+  email String
+  token String           @unique
+  expires DateTime
+
+  @@unique([email,token])
+}
+model PasswrodResetToken{
+  id    String          @id @default(cuid())
+  email String
+  token String           @unique
+  expires DateTime
+
+  @@unique([email,token])
+}
  

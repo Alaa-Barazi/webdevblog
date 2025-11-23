@@ -1,4 +1,43 @@
-import NextAuth from "next-auth"
-import authConfig from "./auth.config"
- 
-export const { auth: middleware } = NextAuth(authConfig)
+import NextAuth from "next-auth";
+import authConfig from "./auth.config";
+import { apiAuthPrefix, authRoutes, LOGIN_REDIRECT, publicRoutes } from "./routes";
+import next from "next";
+
+const { auth: middleware } = NextAuth(authConfig);
+
+export default middleware((req) => {
+  const { nextUrl } = req;
+  const isLoggedIn = !!req.auth;
+
+  console.log("Login status >>> ",isLoggedIn)
+
+  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+
+  if (isApiAuthRoute) {
+    return;
+  }
+  if (isAuthRoute) {
+    if (isLoggedIn) {
+        return Response.redirect(new URL(LOGIN_REDIRECT,nextUrl))
+    }
+    return;
+  }
+  if(!isLoggedIn && !isPublicRoute){
+        return Response.redirect(new URL("/login",nextUrl))
+  }
+return;
+  //console.log("PathName>>>", nextUrl.pathname, isLoggedIn);
+});
+
+//Which oage will call our middleware - each time we visit login, middleware function will be activated
+//Allow all pages to ran middleware expect internal files like images
+export const config = {
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Always run for API routes
+    "/(api|trpc)(.*)",
+  ],
+};

@@ -1,3 +1,4 @@
+"use client";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import {
   DropdownMenu,
@@ -8,6 +9,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogOut, Pencil, Shield, User, UserRound } from "lucide-react";
 import { FaRegBookmark } from "react-icons/fa";
+
+import { signOut } from "next-auth/react";
 
 const UserButton = () => {
   return (
@@ -49,7 +52,10 @@ const UserButton = () => {
           <DropdownMenuSeparator />
 
           <DropdownMenuItem>
-            <button className="flex items-center gap-2">
+            <button
+              onClick={() => signOut()}
+              className="flex items-center gap-2"
+            >
               <LogOut size={18} /> Sign Out
             </button>
           </DropdownMenuItem>
