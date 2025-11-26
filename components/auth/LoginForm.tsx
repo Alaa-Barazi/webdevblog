@@ -11,6 +11,7 @@ import { login } from "@/actions/auth/login";
 import Alert from "../common/Alert";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LOGIN_REDIRECT } from "@/routes";
+import Link from "next/link";
 const LoginForm = () => {
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -32,15 +33,15 @@ const LoginForm = () => {
     startTransition(() => {
       login(data).then((res) => {
         if (res?.error) {
-          router.replace('/login')
+          router.replace("/login");
           setError(res.error);
         }
         if (!res?.error) {
           router.push(LOGIN_REDIRECT);
         }
 
-        if(res?.success){
-          setSuccess(res.success)
+        if (res?.success) {
+          setSuccess(res.success);
         }
       });
     });
@@ -77,6 +78,14 @@ const LoginForm = () => {
       <div className="flex justify-center my-2">Or</div>
       {urlError && <Alert message={urlError} error />}
       <SocialAuth />
+      <div className="flex items-end justify-end">
+        <Link
+          className="mt-2 text-sm underline text-slate:700 dark:text-slate-300"
+          href={"/password-email-form"}
+        >
+          Forgot Password?
+        </Link>
+      </div>
     </form>
   );
 };

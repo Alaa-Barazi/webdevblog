@@ -51,7 +51,7 @@ export const sendPasswordResetEmail = async (
   const res =  await resend.emails.send({
     from: "onboarding@resend.dev",
     to: email,
-    subject: "Reset Your PAssword 🎉",
+    subject: "Password Reset Link🎉",
     html: `<p>Click <a href=${resetLink}>here</a> to reset yout password</p>`,
   });
   return {error : res.error}

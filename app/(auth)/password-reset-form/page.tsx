@@ -1,10 +1,12 @@
-import PasswordEmailForm from "@/components/auth/PasswordEmailForm";
+import PasswordResetFormClient from "@/components/auth/PasswordResetFormClient";
 import Container from "@/components/layout/Container";
 
-const PasswordEmailPAge = () => {
-    return ( <Container>
-        <PasswordEmailForm/>
-    </Container> );
-}
- 
-export default PasswordEmailPAge;
+const PasswordResetForm = () => {
+  return (
+    <Container>
+      <PasswordResetFormClient />
+    </Container>
+  );
+};
+
+export default PasswordResetForm;

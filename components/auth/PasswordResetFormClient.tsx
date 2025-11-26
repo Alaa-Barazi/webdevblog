@@ -12,8 +12,14 @@ import FormField from "../common/FormField";
 import Alert from "../common/Alert";
 import Button from "../common/Button";
 import { passwordEmail } from "@/actions/auth/password-email";
+import { useSearchParams } from "next/navigation";
+import {
+  PasswordResetSchema,
+  PasswordResetSchemaType,
+} from "@/schemas/PasswordResetSchema";
 
-const PasswordEmailForm = () => {
+const PasswordResetFormClient = () => {
+  const searcParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
@@ -21,21 +27,22 @@ const PasswordEmailForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<PasswordEmailSchemaType>({
-    resolver: zodResolver(PasswordEmailSchema),
+  } = useForm<PasswordResetSchemaType>({
+    resolver: zodResolver(PasswordResetSchema),
   });
-  const onSubmit: SubmitHandler<PasswordEmailSchemaType> = (data) => {
+
+  const token = searcParams.get("token");
+  const onSubmit: SubmitHandler<PasswordResetSchemaType> = (data) => {
     setError("");
     startTransition(() => {
-      passwordEmail(data).then((res) => {
-       
-        if (res?.error) {
-          setError(res.error);
-        }
-        if (res?.success) {
-          setSuccess(res.success);
-        }
-      });
+      //   passwordEmail(data).then((res) => {
+      //     if (res?.error) {
+      //       setError(res.error);
+      //     }
+      //     if (res?.success) {
+      //       setSuccess(res.success);
+      //     }
+      //   });
     });
   };
   return (
@@ -43,12 +50,21 @@ const PasswordEmailForm = () => {
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col max-w-[500px] m-auto mt-8 gap-2"
     >
-      <Heading title="Forgot your WEBDEV.blog password?" lg center />
+      <Heading title="Enter your new WEBDEV.blog password" lg center />
       <FormField
-        id="email"
+        id="password"
         register={register}
         errors={errors}
-        placeholder="email"
+        placeholder="password"
+        type="password"
+        disabled={isPending}
+      />
+      <FormField
+        id="confirmPassword"
+        register={register}
+        errors={errors}
+        placeholder="confirmPassword"
+        type="password"
         disabled={isPending}
       />
 
@@ -56,11 +72,11 @@ const PasswordEmailForm = () => {
       {success && <Alert message={success} success />}
       <Button
         type="submit"
-        label={isPending ? "Submitting..." : "Send reset Email"}
+        label={isPending ? "Submitting..." : "Save New Password"}
         disabled={isPending}
       />
     </form>
   );
 };
 
-export default PasswordEmailForm;
+export default PasswordResetFormClient;
