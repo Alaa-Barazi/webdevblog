@@ -17,6 +17,7 @@ import {
   PasswordResetSchema,
   PasswordResetSchemaType,
 } from "@/schemas/PasswordResetSchema";
+import { passwordReset } from "@/actions/auth/password-reset";
 
 const PasswordResetFormClient = () => {
   const searcParams = useSearchParams();
@@ -35,14 +36,14 @@ const PasswordResetFormClient = () => {
   const onSubmit: SubmitHandler<PasswordResetSchemaType> = (data) => {
     setError("");
     startTransition(() => {
-      //   passwordEmail(data).then((res) => {
-      //     if (res?.error) {
-      //       setError(res.error);
-      //     }
-      //     if (res?.success) {
-      //       setSuccess(res.success);
-      //     }
-      //   });
+      passwordReset(data, token).then((res) => {
+        if (res?.error) {
+          setError(res.error);
+        }
+        if (res?.success) {
+          setSuccess(res.success);
+        }
+      });
     });
   };
   return (

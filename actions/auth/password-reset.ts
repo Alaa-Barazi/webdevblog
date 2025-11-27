@@ -1,39 +1,51 @@
 "use server";
 
-import {
-  generatePasswordResetToken,
-  sendPasswordResetEmail,
-} from "@/lib/passwordResetToken";
+import { db } from "@/lib/db";
+import { getPasswordResetTokenByToken } from "@/lib/passwordResetToken";
 import { getUserByEmail } from "@/lib/user";
+
 import {
-  PasswordEmailSchema,
-  PasswordEmailSchemaType,
-} from "@/schemas/PasswordEmailSchema";
+  PasswordResetSchema,
+  PasswordResetSchemaType,
+} from "@/schemas/PasswordResetSchema";
+import bcrypt from "bcryptjs";
 
-export const passwordEmail = async (values: PasswordEmailSchemaType) => {
-  const validatedFields = PasswordEmailSchema.safeParse(values);
+export const passwordReset = async (
+  values: PasswordResetSchemaType,
+  token?: string | null
+) => {
+  if (!token) return { error: "Token does not exist!" };
+  const validatedFields = PasswordResetSchema.safeParse(values);
 
-  if (!validatedFields.success){ return { error: "Invalid emaill" };}
-  const { email } = validatedFields.data;
-
-  const user = await getUserByEmail(email);
-  
-  if (!user || !user.email) {
-    return { error: "User Not Found" };
+  if (!validatedFields.success) {
+    return { error: "Invalid Password" };
   }
 
-  const passwordResetToken = await generatePasswordResetToken(email);
+  const exisitingToken = await getPasswordResetTokenByToken(token);
+  if (!exisitingToken) return { error: "Invalid token" };
 
-  const { error } = await sendPasswordResetEmail(
-    passwordResetToken.email,
-    passwordResetToken.token
-  );
+  const isExpired = new Date(exisitingToken.expires) < new Date();
 
-  if (error) {
-    return {
-      error: "Something went wrong while sending password reset email!",
-    };
+  if (isExpired) {
+    return { error: "Token expired!" };
   }
 
-  return { success: "password reset link was sent to your email!" };
+  const user = await getUserByEmail(exisitingToken.email);
+  if (!user) return { error: "User does not exist" };
+
+  const { password } = validatedFields.data;
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await db.user.update({
+    where: { id: user.id },
+    data: {
+      password: hashedPassword,
+      emailVerified: new Date(),
+      email: exisitingToken.email,
+    },
+  });
+
+  await db.passwrodResetToken.delete({ where: { id: exisitingToken.id } });
+
+  return { success: "Password updated" };
 };
